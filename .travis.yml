@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: rKUnID/Jwf64Jno8uWiPWByV3IzTeQn809VwCE1gOql8XYmlOxvsEI2lnolxbTc/HkNCJqSRIZpJG4nOQAmYxy6pbe4jgUsW9zceLcBmFQ7b6zoQn6PvnVDk6xR7SAWIx/mbBb0tu1Tz5bXFzTZTj7LIOcTDy0jATt/8qJtRZlVtuWLOANLqIjuVbpq1B6uqAhmUEn7UzQOmX9fvn96YO++Vm/vE/DkXyW86dC49ZBAvgBtYtJAvO62VCb5uwpBCZHB4qwJpSxeYLoEp9UtPPCvasP3A9+YuZk9+M/ZdnJ7k1UTTq87bNQerzlGFhui/eNZt14VNuU+zzB1mTAoPYVXMjfJqOCtz39Y+PSHSzH/5UuEAt0afjWm7K+frOaNRtdz0GNVjX1Fx3AE4P9Cc8rCcLB9n1IrVJPxtpL6ycNN1qEKn1tR7SuGTX9jKGNuldFCrijATq1hnfEaVbVzuLo5ddLz2NVLzI2OVecI0nW6C4eoQ85/g6R/qTz3AGTcvnfs+RGe7FPJc7Oh/qTnvM/R3hnhEyQpBADHzFzH9eND5K6Li7cqbpT9t+Vdok50X50KXq43NiFOKevh9IohFLtY6hFF1EZ3gK6Iw+6YcS3vCRl/6NoDP5BBIpNpoNw53TtwfNiXoZu2Wz0debf+kQuCzegRs2MY4IgdxqfnEdes=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/A-Briefe-and-True-Report-of-the-New-Found-Land-of-Virginia_4247
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
